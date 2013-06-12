@@ -1,28 +1,27 @@
-function [ CMat, CKSym, predicted, SingVals, LapKernel] = SSC( X,groundTruth,n,K,lambda,kernel)
+function [predicted, confusionMatrix, Missrate] = SSC( X,groundTruth,n,K,lambda,kernel)
 %SSC Sparse subspace clustering algorithm
 %   Detailed explanation goes here
-%--------------------------------------------------------------------------
-% This is the main function for running SSC.
-% Load the DxN matrix X representing N data points in the D dim. space
-% living in a union of n low-dim. subspaces.
-% The projection step onto the r-dimensional space is arbitrary and can
-% be skipped. In the case of using projection there are different types of
-% projections possible: 'NormalProj', 'BernoulliProj', 'PCA'. Please refer
-% to DataProjection.m for more information.
-%--------------------------------------------------------------------------
-% X: DxN matrix of N points in D-dim. space living in n low-dim. subspaces
-% s: groundtruth for the segmentation
-% n: number of subspaces
-% r: dimension of the projection e.g. r = d*n (d: max subspace dim.)
-% Cst: 1 if using the constraint sum(c)=1 in Lasso, else 0
-% OptM: optimization method {'L1Perfect','L1Noise','Lasso','L1ED'}, see
-% SparseCoefRecovery.m for more information
-% lambda: regularization parameter for 'Lasso' typically in [0.001,0.01]
-% or the noise level for 'L1Noise'. See SparseCoefRecovery.m for more
-% information.
-% K: number of largest coefficients to pick in order to build the
-% similarity graph, typically K = max{subspace dimensions}
-% Missrate: vector of misclassification rates
+
+% Input:
+%   X               -       DxN data matrix
+%   groundTruth     -       Nx1 ground truth
+%   n               -       how many subspaces to seek
+%   K               -       number of coefficients to take for the
+%       projection
+%   lambda          -       regularization parameter
+%   kernel          -       function handle to the kernel, if using kernel
+%       SSC algorithm
+%
+%
+%  Output:
+%   predicted       -       predicted labels 
+%   confusionMatrix -       confusion matrix of the clustering
+%   Missrate        -       missclassification rate of the clustering
+%
+%   author: Ivan Bogun
+%   date  : June 10, 2013
+%
+%  credit: code is adapted from the one by Ehsan Elhamifar
 
 if nargin==6
     
@@ -36,8 +35,8 @@ CKSym = BuildAdjacency(CMat,K);
 [Grps , SingVals, LapKernel] = SpectralClustering(CKSym,n);
 [Missrate, confusionMatrix,predicted] = Misclassification(Grps,groundTruth);
 
-display(confusionMatrix);
-display(min(Missrate));
+% display(confusionMatrix);
+% display(min(Missrate));
 
 end
 
