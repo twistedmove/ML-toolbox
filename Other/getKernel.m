@@ -11,6 +11,12 @@ function [ kernel ] = getKernel( kernelType, params )
 %   Output:
 %       kernel              -       function handle of the kernel
 %
+%   Supported kernels:
+%   'linear','polynomial','gaussian','gaussianAlignment','laplacian',
+%   'rationalQuadratic', 'multiquadratic', 'inverseMultiQuadratic','wave',
+%   'cauchy','chi-square','generalized_T-student'
+%
+%
 %   author: Ivan Bogun
 %   date  : June 8, 2013
 %
@@ -21,9 +27,9 @@ end
 
 
 % there is no such function ( only for convexity of certain kernels in CVX)
-if (exist('pow_pos')==0)
-    pow_pos=@(x,p) max(x^p,0);
-end
+% if (exist('pow_pos')==0)
+%     pow_pos=@(x,p) max(x^p,0);
+% end
 
 
 if (strcmp(kernelType,'linear'))
@@ -33,28 +39,28 @@ elseif(strcmp(kernelType,'polynomial'))
     kernel=@(x,y) (x'*y +1)^params(1);
     
 elseif(strcmp(kernelType,'gaussian'))
-    kernel=@(x,y) exp( -(pow_pos(norm(x-y),2))/(2*params(1)^2));
+    kernel=@(x,y) exp( -(pow_p(norm(x-y),2))/(2*params(1)^2));
     
+elseif(strcmp(kernelType,'gaussianAlignment'))
+    kernel=@(x,y) exp( -(pow_p(norm(alignment(x,y)),2))/(2*params(1)^2));
+     
 elseif(strcmp(kernelType,'laplacian'))
     kernel=@(x,y) exp( -((norm(x-y)))/(params(1)));
-    
-elseif(strcmp(kernelType,'laplacian'))
-    kernel=@(x,y) exp( -((norm(x-y)))/(2*params(1)));
-    
+
 elseif(strcmp(kernelType,'rationalQuadratic'))
-    kernel=@(x,y) 1 - (pow_pos(norm(x-y),2)) /(pow_pos(norm(x-y),2)+params(1));  
+    kernel=@(x,y) 1 - (pow_p(norm(x-y),2)) /(pow_pos(norm(x-y),2)+params(1));  
         
 elseif(strcmp(kernelType,'multiquadratic'))
-    kernel=@(x,y) sqrt( pow_pos(norm(x-y),2)+params(1)^2);  
+    kernel=@(x,y) sqrt( pow_p(norm(x-y),2)+params(1)^2);  
             
 elseif(strcmp(kernelType,'inverseMultiQuadratic'))
-    kernel=@(x,y) 1/sqrt( pow_pos(norm(x-y),2)+params(1)^2); 
+    kernel=@(x,y) 1/sqrt( pow_p(norm(x-y),2)+params(1)^2); 
             
 elseif(strcmp(kernelType,'wave'))
     kernel=@(x,y) (params(1)/norm(x-y)) * sin( norm(x-y)/params(1)); 
             
 elseif(strcmp(kernelType,'cauchy'))
-    kernel=@(x,y) 1/(1+ pow_pos(norm(x-y),2)/params(1)); 
+    kernel=@(x,y) 1/(1+ pow_p(norm(x-y),2)/params(1)); 
             
 elseif(strcmp(kernelType,'chi-square'))
     kernel=@(x,y) sum((x-y).^2./(x+y)/2); 
