@@ -1,16 +1,16 @@
-function [ res ] = svmPredict( f,x )
+function [ label value] = svmPredict( f,x )
 %SVMPREDICT Summary of this function goes here
 %   Detailed explanation goes here
 
-y=f(x);
+value=f(x);
 
-yRes=[y-1,y+1];
+yRes=[value-1,value+1];
 [~,indx]=min(abs(yRes));
 
 if (indx==1)
-    res=1;
+    label=1;
 else
-    res=-1;
+    label=-1;
 end
 
 end

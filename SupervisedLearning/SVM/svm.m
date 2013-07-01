@@ -22,7 +22,7 @@ function [ f ] = svm(X,y,C)
 
 cvx_begin quiet
     variables w(n) b err(m)
-    minimize 1/2*sum(w.*w) + C*sum(err)
+    minimize (1/2*sum(w.*w) + C*sum(err))
     subject to
         y.*(X*w + b) >= 1 - err;
         err >= 0;

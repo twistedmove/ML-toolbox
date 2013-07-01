@@ -1,21 +1,10 @@
+X=trajectoriesArray(1,:);
+n=length(X);
+y=-ones(1,54);
 
-
-n=100;
-m=50;
-
-y=ones(m,1);
-y(25:m)=-1;
-
-X=rand(m,n);
-C=100;
-% % m data points
-% % n size of the each vector
-% cvx_begin quiet
-%     variables w(n) b err(m)
-%     minimize 1/2*sum(w.*w) + C*sum(err)
-%     subject to
-%         y.*(X*w + b) >= 1 - err;
-%         err >= 0;
-% cvx_end
-
-f=svm(X,y,C);
+% current class learning
+k=1;
+C=1;
+kernel=getKernel('gaussianAlignment',10);
+y(groundTruth==k)=1;
+f=trainSVM( X,y',kernel,C );
