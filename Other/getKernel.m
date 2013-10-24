@@ -42,7 +42,7 @@ elseif(strcmp(kernelType,'gaussian'))
     kernel=@(x,y) exp( -(pow_p(norm(x-y),2))/(2*params(1)^2));
     
 elseif(strcmp(kernelType,'gaussianAlignment'))
-    kernel=@(x,y) exp( -(pow_p(norm(alignment(x,y)),2))/(2*params(1)^2));
+    kernel=@(x,y) exp( -(pow_p(norm(alignmentMex(x',y')),2))/(2*params(1)^2));
      
 elseif(strcmp(kernelType,'laplacian'))
     kernel=@(x,y) exp( -((norm(x-y)))/(params(1)));

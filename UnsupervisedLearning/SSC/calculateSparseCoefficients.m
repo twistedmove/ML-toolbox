@@ -7,7 +7,9 @@ function [ CMat ] = calculateSparseCoefficients( Xp,lambda,kernel)
 %   Input:
 %       Xp          -       DxN data matrix of N data points
 %       lambda      -       regularization parameter
-%       kernel      -       kernel to use in the kernel version of SSC
+%       kernel      -       kernel to use in the kernel version of SSC, can
+%       be a struct so that kernel(i).kernel - function handle,
+%       kernel(i).weights - weight of the kernel i.
 %
 %   Output:
 %       CMat        -       regressor coefficients
@@ -34,13 +36,59 @@ else
 end
 
 
+if (iscell(Xp)==1)
+    fullK=kernel;
+    %     if (size(Xp,1)==1)
+    %
+    %         for s=1:(N)
+    %             for j=1:(N)
+    %                 if (j>s)
+    %                     fullK(s,j)=kernel(Xp{1,s},Xp{1,j});
+    %                 elseif (j==s)
+    %                     fullK(j,s)=1;
+    %                 else
+    %                     fullK(s,j)=fullK(j,s);
+    %                 end
+    %             end
+    %         end
+    %
+    %     else
+    %
+    %         for k=1:size(Xp,1)
+    %             fullK1=zeros(N,N);
+    %
+    %             for s=1:(N)
+    %                 for j=1:(N)
+    %                     if (j>=s)
+    %                         fullK1(s,j)=kernel(k).kernels(Xp{2,s},Xp{2,j});
+    %                     else
+    %                         fullK1(s,j)=fullK1(j,s);
+    %                     end
+    %                 end
+    %             end
+    %             fullK=fullK+kernel(k).weights*fullK1;
+    %         end
+    %
+    %     end
+    %     minEigenvalue=min(eig(fullK));
+    %     if (minEigenvalue<0)
+    %         fullK=fullK-minEigenvalue*eye(N);
+    %     end
+end
 
 
 for i = 1:N
     
-    fprintf(1,'%3g data record out of %3g \n',i,N);
     
-    y = Xp(:,i);
+    %fprintf('%3g data record out of %3g \n',i,N);
+    
+    if (iscell(Xp)==1)
+        y=Xp{1,i};
+    else
+        y = Xp(:,i);
+    end
+    
+    
     if i == 1
         Y = Xp(:,i+1:end);
     elseif ( (i > 1) && (i < N) )
@@ -53,30 +101,47 @@ for i = 1:N
     if (kernelMode==0)
         
         % original SSC algorithm
-        cvx_begin;
-        
-        cvx_quiet true;
-        cvx_precision high
-        
-        variable c(N-1,1);
-        
-        minimize( norm(c,1) + lambda * norm(Y * c  - y) );
-        
-        subject to
-        
-        cvx_end;
-        
+        if (iscell(Xp)==1)
+            error('Linear SSC is not implemented for cell arrays, use kernel version instead');
+        else
+            cvx_begin;
+            
+            cvx_quiet true;
+            cvx_precision high
+            
+            variable c(N-1,1);
+            
+            minimize( norm(c,1) + lambda * norm(Y * c  - y) );
+            
+            subject to
+            
+            cvx_end;
+        end
     else
         
         % kernel variant of the SSC algorithm
         
-        K_yy=kernel(y,y);
         
-        for s=1:(N-1)
-            Kv_y(s)=kernel(Y(:,s),y);
-            for j=1:(N-1)
-                K(s,j)=kernel(Y(:,s),Y(:,j));
+        if (iscell(Xp)==1)
+            
+            K_yy=fullK(i,i);
+            
+            Kv_y=fullK(:,i);
+            Kv_y(i)=[];
+            
+            K=fullK;
+            K(i,:)=[];
+            K(:,i)=[];
+            
+        else
+            
+            for s=1:(N-1)
+                Kv_y(s)=kernel(Y(:,s),y);
+                for j=1:(N-1)
+                    K(s,j)=kernel(Y(:,s),Y(:,j));
+                end
             end
+            
         end
         
         %version 1

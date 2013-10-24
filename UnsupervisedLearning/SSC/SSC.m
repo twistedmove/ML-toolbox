@@ -32,7 +32,7 @@ end
 
 CKSym = BuildAdjacency(CMat,K);
 
-[Grps , SingVals, LapKernel] = SpectralClustering(CKSym,n);
+[Grps , ~, ~] = SpectralClustering(CKSym,n);
 [Missrate, confusionMatrix,predicted] = Misclassification(Grps,groundTruth);
 
 % display(confusionMatrix);

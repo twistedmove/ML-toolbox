@@ -26,7 +26,9 @@ M=zeros(n+1,m+1);
 M(1,1)=0;
 null=zeros(1,k);
 for i=2:n+1
+    
     M(i,1)=M(i-1,1)+loss(A(i-1,:),null);
+  
 end
 
 for j=2:m+1

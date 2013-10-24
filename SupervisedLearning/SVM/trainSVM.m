@@ -1,4 +1,4 @@
-function [ f, alpha ] = trainSVM( X,y,kernel,C,method )
+function [ f, alpha ] = trainSVM( X,y,kernel,C,method)
 %TRAINSVM Summary of this function goes here
 %   Detailed explanation goes here
 
@@ -15,10 +15,12 @@ end
 
 minEig=min(eig(K));
 n=size(K,1);
-
+if (minEig<0)
 K=K-minEig*eye(n);
+end
 
 alpha=svmDual(K,y,C);
+
 f=getHyperplane(X,alpha,kernel,weights,y);
 
 end

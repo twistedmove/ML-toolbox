@@ -20,7 +20,7 @@ function [ f ] = svm(X,y,C)
 
 [m,n]=size(X);
 
-cvx_begin quiet
+cvx_begin 
     variables w(n) b err(m)
     minimize (1/2*sum(w.*w) + C*sum(err))
     subject to

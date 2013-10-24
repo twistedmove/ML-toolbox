@@ -1,4 +1,4 @@
-function [ hyperplane ] = getHyperplane( X,alpha,kernelFn,weights,y)
+function [ hyperplane ] = getHyperplaneOnlyKernel(alpha,kernel,weights,y)
 %GETHYPERPLANE From solution of the dual svm get the function representing
 %separating hyperplane.
 %
@@ -19,11 +19,7 @@ function [ hyperplane ] = getHyperplane( X,alpha,kernelFn,weights,y)
 % Note : works only with cell arrays
 %
 
-f=@(x) sumOverSupportVectors(X,alpha,kernelFn,weights,y,x);
-
-if nargin<5
-    weights=1;
-end
+f=@(x) sumOverSupportVectors(alpha,weights,y,x);
 
 n=length(y);
 
@@ -32,31 +28,27 @@ minSupport=0;
 
 for j=1:n
     if (y(j)==-1)
-        maxSupport=max(maxSupport,f(X(:,j)));
+        maxSupport=max(maxSupport,f(squeeze(kernel(j,:,:))));
     else
-        minSupport=min(minSupport,f(X(:,j)));
+        minSupport=min(minSupport,f(squeeze(kernel(j,:,:))));
     end
 end
 
 b=-(maxSupport+minSupport)/2;
-
 hyperplane=@(x) f(x)+b;
 
-    function res=sumOverSupportVectors(X,alpha,kernelFn,weights,y,x)
+    function res=sumOverSupportVectors(alpha,weights,y,x)
         idx=find(alpha~=0);
         
         n=length(idx);
-        m=length(kernelFn);
+        m=length(weights);
         res=0;
         
         for i=1:n
             ker=0;
             for j=1:m
-                if (isa(kernelFn{j},'double'))
-                    ker=ker+weights(j)*x{j}(idx(i));
-                else
-                    ker=ker+weights(j)*kernelFn{j}(X{j,idx(i)},x{j});
-                end
+                
+                ker=ker+weights(j)*x(idx(i),j);
                 
                 
             end
