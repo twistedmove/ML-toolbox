@@ -1,4 +1,4 @@
-function [ alpha ] = svmDual(kernel,y,C )
+function [ alpha1 ] = svmDual(kernel,y,C,classPrior)
 %SVM Learn dual of soft-margin SVM with given data and paraemters and a
 % given kernel
 %
@@ -20,15 +20,32 @@ function [ alpha ] = svmDual(kernel,y,C )
 
 [n,~]=size(kernel);
 
-
+if nargin>3
+   % we know some class prior ( data is not distributed evenly)
+   
+   pos=1-(sum(y==1))/length(y);
+   neg=1-(sum(y==-1))/length(y);
+   
+   prior=zeros(length(y),1);
+   
+   posIdx=find(y==1,length(y),'first');
+   negIdx=find(y==-1,length(y),'first');
+   
+   prior(posIdx)=pos;
+   prior(negIdx)=neg;
+else
+    
+    prior=1;
+    
+end
 
 cvx_begin quiet
-variables alpha(n)
-        maximize (sum(alpha) -0.5* quad_form(alpha.*y,kernel))
+variables alpha1(n)
+        maximize (sum(alpha1) -0.5* quad_form(alpha1.*y,kernel))
     subject to
-        0<=alpha;
-        alpha<=C;
-        alpha'*y==0;
+        0<=alpha1;
+        alpha1<=C*prior;
+        alpha1'*y==0;
 cvx_end
 
 % y_neg=find(y==-1);

@@ -23,14 +23,25 @@ f=@(x) sumOverSupportVectors(alpha,weights,y,x);
 
 n=length(y);
 
+nKernel=size(kernel,3);
+
 maxSupport=0;
 minSupport=0;
 
-for j=1:n
-    if (y(j)==-1)
-        maxSupport=max(maxSupport,f(squeeze(kernel(j,:,:))));
+for jj=1:n
+    if (y(jj)==-1)
+        if (nKernel==1)
+            maxSupport=max(maxSupport,f(kernel(jj,:)'));
+        else
+            maxSupport=max(maxSupport,f(squeeze(kernel(jj,:,:))));
+        end
     else
-        minSupport=min(minSupport,f(squeeze(kernel(j,:,:))));
+        if(nKernel==1)
+            minSupport=min(minSupport,f(kernel(jj,:)'));
+        else
+            
+            minSupport=min(minSupport,f(squeeze(kernel(jj,:,:))));
+        end
     end
 end
 
@@ -38,13 +49,13 @@ b=-(maxSupport+minSupport)/2;
 hyperplane=@(x) f(x)+b;
 
     function res=sumOverSupportVectors(alpha,weights,y,x)
-        idx=find(alpha~=0);
+        idx=find(alpha>=0.0001);
         
-        n=length(idx);
+        nIdx=length(idx);
         m=length(weights);
         res=0;
         
-        for i=1:n
+        for i=1:nIdx
             ker=0;
             for j=1:m
                 
