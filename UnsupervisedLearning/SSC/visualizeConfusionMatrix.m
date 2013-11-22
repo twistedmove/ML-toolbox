@@ -1,8 +1,12 @@
-function [  ] = visualizeConfusionMatrix( mat )
+function [  ] = visualizeConfusionMatrix( mat,labels)
 %VIUALIZECONFUSIONMATRIX Plot confusion matrix
 %   
 %   Author:         I.Bogun (ibogun2010@my.fit.edu)
 %   Date  :         03/07/2013
+
+
+%mat=randn(2)/max(mat(:));
+
 
 imagesc(mat);            %# Create a colored plot of the matrix values
 colormap(flipud(gray));  %# Change the colormap to gray (so higher values are
@@ -11,7 +15,7 @@ set(0,'DefaultTextInterpreter', 'latex')
 set(0,'DefaultTextFontSize',32);                         
 textStrings = num2str(mat(:),'%2g');  %# Create strings from the matrix values
 textStrings = strtrim(cellstr(textStrings));  %# Remove any space padding
-[x,y] = meshgrid(1:6);   %# Create x and y coordinates for the strings
+[x,y] = meshgrid(1:length(labels));   %# Create x and y coordinates for the strings
 hStrings = text(x(:),y(:),textStrings(:),...      %# Plot the strings
                 'HorizontalAlignment','center');
 midValue = mean(get(gca,'CLim'));  %# Get the middle value of the color range
@@ -21,13 +25,13 @@ textColors = repmat(mat(:) > midValue,1,3);  %# Choose white or black for the
                                              %#   the background color
 set(hStrings,{'Color'},num2cell(textColors,2));  %# Change the text colors
 
-set(gca,'XTick',1:6,...                         %# Change the axes tick marks
-        'XTickLabel',{'drinking','lighting','pouring','spraying','talking','dialing'},...  %#   and tick labels
-        'YTick',1:6,...
-        'YTickLabel',{'drinking','lighting','pouring','spraying','talking','dialing'},...
+set(gca,'XTick',1:length(labels),...                         %# Change the axes tick marks
+        'XTickLabel',labels,...  %#   and tick labels
+        'YTick',1:length(labels),...
+        'YTickLabel',labels,...
         'TickLength',[0 0]);
     
-labels={'drinking','lighting','pouring','spraying','talking','dialing'};
+%labels={'drinking','lighting','pouring','spraying','talking','dialing'};
 
 %% Generate figure and remove ticklabels
 
